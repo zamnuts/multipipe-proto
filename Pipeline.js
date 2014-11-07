@@ -1,23 +1,30 @@
 var Pipeline,
 	events = require('events'),
-	util = require('util');
+	util = require('util'),
+	l = require('lodash');
 
-module.exports = Pipeline = function(pipeline) {
+module.exports = Pipeline = function(pipeline,opts) {
 	this.setup(pipeline);
 	this.hasError = false;
 	this.started = false;
+	this.opts = l.merge({
+		doEmpty: true,
+		bufferStatusInterval: 1000
+	},opts || {});
 	this._interval = setInterval(function() {
 		if ( !this.pipeline || !this.pipeline.length ) {
 			return;
 		}
 		var lastpl = this.pipeline[this.pipeline.length-1];
 		console.log(
+			'[%s] bufferlen=%d, length=%d, end=%s, fin=%s',
+			new Date().toISOString(),
 			lastpl._writableState.buffer.length,
 			lastpl._writableState.length,
 			lastpl._writableState.ending,
 			lastpl._writableState.finished
 		);
-	},500);
+	}.bind(this),this.opts.bufferStatusInterval);
 };
 
 util.inherits(Pipeline,events.EventEmitter);
@@ -61,9 +68,9 @@ Pipeline.prototype.stop = function stop() {
 		tmp = pl[i].unpipe(tmp);
 	}
 	for ( i = 0; i < pl.length; i++ ) {
-		if ( typeof pl[i]._writableState === 'object' ) {
+		if ( this.opts.doEmpty && typeof pl[i]._writableState === 'object' ) {
 			console.log(
-				'[%s] (%d) buffer length %d / %d',
+				'[%s] (%d) emptied buffer  with length %d / %d',
 				new Date().toISOString(),
 				i,
 				pl[i]._writableState.buffer.length,
@@ -108,4 +115,4 @@ Pipeline.prototype.setup = function setup(pipeline) {
 		pl[i].on('error',this.onError.bind(this,'error'));
 	}
 	return this;
-}
+};

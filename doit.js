@@ -69,7 +69,7 @@ DoIt.prototype.start = function(callback) {
 		cts,
 		dts,
 		pws
-	]).on('error',function(err){
+	],this.opts.pipeline).on('error',function(err){
 		closeDb();
 	}).once('done',function() {
 		closeDb();

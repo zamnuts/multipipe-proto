@@ -24,4 +24,5 @@ To run/test it:
   1. `filePath` is the relative path to the CSV
   2. `targetMongo` is a mongodb connection string (auth not supported)
   3. `targetCollection` is the name of the collection to use, this script _drops_ the collection before writing to it!
-  4. Modify the timeout duration, or simply change the `start` callback to your liking. The point of this script is to terminate the pipeline _early_/_prematurely_ in a controlled manner, otherwise what are you really testing?
+  4. `doEmpty` tells the pipeline whether or not to empty the buffer (`true` to empty, `false` to finish `drain`ing)
+  5. Modify the timeout duration, or simply change the `start` callback to your liking. The point of this script is to terminate the pipeline _early_/_prematurely_ in a controlled manner, otherwise what are you really testing?
